@@ -379,7 +379,7 @@ def run_pipeline(mode='own', save_artifacts=False):
         'encoders': encoders, 'X_rank': X_rank,
         'tco_pred_all': tco_pred_all, 'df_ranked': df_ranked, 'df_extra': df_extra
     }
-
+# ============ ТОЧКА ВХОДА ============
 if __name__ == "__main__":
     # Для ручного запуска одного режима
     mode_input = input("Выберите режим (1 - покупка, 2 - аренда): ").strip()
