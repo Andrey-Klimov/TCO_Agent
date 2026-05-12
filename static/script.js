@@ -1,4 +1,4 @@
-const API_URL = 'https://tocagentv2-production.up.railway.app/'; // замените при деплое
+const API_URL = 'https://web-production-35fbb.up.railway.app/'; // замените при деплое
 
 // Справочник регионов РФ
 const REGION_NAMES = {
