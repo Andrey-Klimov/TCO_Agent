@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TCO Агент — подбор коммерческой недвижимости</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Исправленные пути -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-content">
+      <h1><i class="fas fa-building"></i> TCO Агент</h1>
+      <p>Интеллектуальный подбор коммерческой недвижимости с учётом совокупной стоимости владения</p>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="search-panel">
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-sliders-h"></i> Параметры поиска</h2>
+        </div>
+        <div class="card-body">
+          <!-- Режим -->
+          <div class="form-group">
+            <label>Режим</label>
+            <div class="mode-switch">
+              <input type="radio" id="mode_own" name="mode" value="own" checked>
+              <label for="mode_own" class="mode-label"><i class="fas fa-home"></i> Покупка</label>
+              <input type="radio" id="mode_rent" name="mode" value="rent">
+              <label for="mode_rent" class="mode-label"><i class="fas fa-hand-holding-usd"></i> Аренда</label>
+            </div>
+          </div>
+
+          <!-- Регион -->
+          <div class="form-group" id="regionGroup">
+            <label><i class="fas fa-map-marker-alt"></i> Регион</label>
+            <div class="custom-select">
+              <input type="text" id="regionSearch" placeholder="Все регионы" autocomplete="off">
+              <input type="hidden" id="regionValue">
+              <ul class="custom-options" id="regionOptions" style="display:none;"></ul>
+            </div>
+          </div>
+
+          <!-- Площадь -->
+          <div class="form-group">
+            <label><i class="fas fa-vector-square"></i> Общая площадь (м²)</label>
+            <div class="range-inputs">
+              <input type="number" id="area_min" placeholder="от" value="50" step="1" min="0">
+              <span class="divider">–</span>
+              <input type="number" id="area_max" placeholder="до" value="90" step="1" min="0">
+            </div>
+          </div>
+
+          <!-- Рабочие места -->
+          <div class="form-group">
+            <label><i class="fas fa-user-tie"></i> Рабочие места</label>
+            <div class="range-inputs">
+              <input type="number" id="quan_min" placeholder="от" value="1" step="1" min="0">
+              <span class="divider">–</span>
+              <input type="number" id="quan_max" placeholder="до" value="5" step="1" min="0">
+            </div>
+          </div>
+
+          <!-- Возраст здания -->
+          <div class="form-group">
+            <label><i class="fas fa-calendar-alt"></i> Возраст здания (лет)</label>
+            <div class="range-inputs">
+              <input type="number" id="age_min" placeholder="от" value="0" step="1" min="0">
+              <span class="divider">–</span>
+              <input type="number" id="age_max" placeholder="до" value="20" step="1" min="0">
+            </div>
+          </div>
+
+          <!-- Первая линия -->
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="first_line">
+              <span class="checkmark"></span>
+              <span><i class="fas fa-road"></i> Только первая линия</span>
+            </label>
+          </div>
+
+          <!-- TCO -->
+          <div class="form-group">
+            <label><i class="fas fa-ruble-sign"></i> TCO (тыс. руб.)</label>
+            <div class="range-inputs">
+              <input type="number" id="tco_min" placeholder="от" step="1000" min="0">
+              <span class="divider">–</span>
+              <input type="number" id="tco_max" placeholder="до" step="1000" min="0">
+            </div>
+          </div>
+
+          <button id="searchBtn" class="search-btn">
+            <i class="fas fa-search"></i> Подобрать объекты
+          </button>
+          <div id="loadingIndicator" class="loading" style="display:none;">Ищем подходящие варианты…</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results-panel">
+      <div id="overallRatingWidget" class="overall-widget" style="display:none;">
+        <div class="overall-content">
+          <div class="overall-circle"><span id="overallScore">0</span></div>
+          <div class="overall-text">
+            <strong>Общий рейтинг подборки</strong>
+            <p>Средний балл соответствия по найденным объектам.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="infoCard" class="info-card" style="display:none;">
+        <i class="fas fa-info-circle"></i> Расчёт совокупной стоимости владения (ТСО) выполнен на горизонт <strong>10 лет</strong>.
+      </div>
+
+      <div id="sortPanel" class="sort-panel" style="display:none;">
+        <span class="sort-label">Сортировка:</span>
+        <div class="sort-slider-container">
+          <input type="range" id="sortRange" min="0" max="2" value="0" step="1">
+          <div class="sort-ticks">
+            <span>По рейтингу</span>
+            <span>TCO ↑</span>
+            <span>TCO ↓</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="resultsContainer"></div>
+      <div id="emptyResult" class="empty-state" style="display:none;">
+        <i class="fas fa-search" style="font-size:3rem;opacity:0.3;"></i>
+        <p>Ничего не найдено.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <span>© 2025 TCO Агент</span>
+      <span>Автор: <strong>Andrey Klimov</strong> <a href="mailto:aaklimov_4@edu.hse.ru">aaklimov_4@edu.hse.ru</a></span>
+    </div>
+  </footer>
+
+  <!-- Исправленный путь -->
+  <script src="/static/script.js"></script>
+</body>
+</html>
